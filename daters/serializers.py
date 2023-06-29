@@ -16,3 +16,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class DaterUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DaterUser
+        fields = ['id', 'avatar', 'gender', 'first_name', 'last_name', 'email']
