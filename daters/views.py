@@ -1,16 +1,15 @@
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import RegistrationSerializer
 from django.core.mail import send_mail
 
-from .utils.imageprocessing import add_watermark
 from dayofthedate import settings
-
-from daters.serializers import DaterUserSerializer
+from .serializers import RegistrationSerializer, DaterUserSerializer, UpdateLocationSerializer
+from .utils.imageprocessing import add_watermark
+from .filters import DistanceFilterBackend
 from daters.models import DaterUser
 
 
@@ -23,6 +22,14 @@ class RegisterUserAPIView(generics.CreateAPIView):
         # add watermark to user avatar
         watermark_avatar = add_watermark(user.avatar)
         user.avatar.save(user.avatar.name, watermark_avatar, save=True)
+
+
+class UpdateUserLocationView(generics.UpdateAPIView):
+    serializer_class = UpdateLocationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
 class AddToMatchView(APIView):
@@ -59,5 +66,5 @@ class AddToMatchView(APIView):
 class MemberListAPIView(ListAPIView):
     queryset = DaterUser.objects.all()
     serializer_class = DaterUserSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, DistanceFilterBackend]
     filterset_fields = ['gender', 'first_name', 'last_name']

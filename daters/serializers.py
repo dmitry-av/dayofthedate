@@ -8,7 +8,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DaterUser
         fields = ['username', 'password', 'avatar',
-                  'gender', 'first_name', 'last_name', 'email']
+                  'gender', 'first_name', 'last_name', 'email', 'longitude', 'latitude']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -18,7 +18,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class UpdateLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DaterUser
+        fields = ['longitude', 'latitude']
+
+
 class DaterUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = DaterUser
-        fields = ['id', 'avatar', 'gender', 'first_name', 'last_name', 'email']
+        fields = ['id', 'avatar', 'gender', 'first_name',
+                  'last_name', 'email', 'longitude', 'latitude']

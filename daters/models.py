@@ -3,6 +3,7 @@ import random
 import string
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 def photo_path(instance, filename):
@@ -24,6 +25,10 @@ class DaterUser(AbstractUser):
     last_name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     match = models.ManyToManyField('self', blank=True, symmetrical=False)
+    longitude = models.FloatField(
+        null=True, validators=[MinValueValidator(-180), MaxValueValidator(180)], blank=True)
+    latitude = models.FloatField(null=True, validators=[
+                                 MinValueValidator(-90), MaxValueValidator(90)], blank=True)
 
     def __str__(self):
         return self.username
