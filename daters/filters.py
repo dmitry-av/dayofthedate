@@ -11,7 +11,7 @@ class DistanceFilterBackend(filters.BaseFilterBackend):
             user_longitude = request.user.longitude
             user_latitude = request.user.latitude
 
-            if user_longitude is not None and user_latitude is not None:
+            if user_longitude is not None and user_latitude is not None and isinstance(distance, (int, float)):
                 distance = float(distance)
 
                 # calculate the distance formula expression

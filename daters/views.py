@@ -52,7 +52,7 @@ class AddToMatchView(APIView):
                 )
                 send_mail(
                     subject='Взаимная симпатия',
-                    message=f"Вы понравились пользователю {target_user.username}! Email участника: {user.email}",
+                    message=f"Вы понравились пользователю {user.username}! Email участника: {user.email}",
                     from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[target_user.email],
                 )
@@ -65,6 +65,7 @@ class AddToMatchView(APIView):
 
 class MemberListAPIView(ListAPIView):
     queryset = DaterUser.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = DaterUserSerializer
     filter_backends = [DjangoFilterBackend, DistanceFilterBackend]
     filterset_fields = ['gender', 'first_name', 'last_name']
