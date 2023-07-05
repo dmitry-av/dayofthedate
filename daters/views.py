@@ -4,10 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.mail import send_mail
 
-from dayofthedate import settings
-from .serializers import RegistrationSerializer, DaterUserSerializer, UpdateLocationSerializer
+
+from .serializers import RegistrationSerializer, DaterUserSerializer, UpdateUserSerializer
 from .utils.imageprocessing import add_watermark
 from .filters import DistanceFilterBackend
 from daters.models import DaterUser
@@ -24,43 +23,34 @@ class RegisterUserAPIView(generics.CreateAPIView):
         user.avatar.save(user.avatar.name, watermark_avatar, save=True)
 
 
-class UpdateUserLocationView(generics.UpdateAPIView):
-    serializer_class = UpdateLocationSerializer
+class UpdateUserView(generics.UpdateAPIView):
+    serializer_class = UpdateUserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
 
+    def perform_update(self, serializer):
+        user = self.get_object()
+        avatar = serializer.validated_data.get('avatar')
+        if avatar:
+            watermark_avatar = add_watermark(avatar)
+            user.avatar.save(avatar.name, watermark_avatar, save=True)
+            serializer.validated_data.pop('avatar', None)
+        return super().perform_update(serializer)
+
 
 class AddToMatchView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, id):
+        user = self.request.user
         try:
-            user = self.request.user
             target_user = DaterUser.objects.get(id=id)
-            if user.match.filter(id=target_user.id).exists():
-                return Response({'message': 'User is already your match'}, status=400)
-
-            user.match.add(target_user)
-
-            if target_user.match.filter(id=user.id).exists():
-                # send email notification to both users
-                send_mail(
-                    subject='Взаимная симпатия',
-                    message=f"Вы понравились пользователю {target_user.username}! Email участника: {target_user.email}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[user.email],
-                )
-                send_mail(
-                    subject='Взаимная симпатия',
-                    message=f"Вы понравились пользователю {user.username}! Email участника: {user.email}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[target_user.email],
-                )
-
-            return Response({'message': 'User added to match successfully.'})
-
         except DaterUser.DoesNotExist:
             return Response({'message': 'User not found.'}, status=404)
+        user.match.add(target_user)
+        return Response({'message': 'User added to match successfully.'})
 
 
 class MemberListAPIView(ListAPIView):

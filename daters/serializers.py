@@ -18,10 +18,22 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class UpdateLocationSerializer(serializers.ModelSerializer):
+class UpdateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    avatar = serializers.ImageField(required=False)
+
     class Meta:
         model = DaterUser
-        fields = ['longitude', 'latitude']
+        fields = ['longitude', 'latitude', 'avatar',
+                  'first_name', 'last_name', 'password']
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+        return super().update(instance, validated_data)
 
 
 class DaterUserSerializer(serializers.ModelSerializer):
