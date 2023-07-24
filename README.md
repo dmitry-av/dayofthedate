@@ -1,92 +1,92 @@
 # Dating App
 
-Это приложение для знакомств, которое позволяет пользователям зарегистрироваться, просматривать профили других пользователей, обновлять свое местоположение и связываться с другими пользователями, выражая взаимный интерес.
+This is a dating application that allows users to register, view profiles of other users, update their location, and connect with other users by expressing mutual interest.
 
-Проект использует environment variables, пример файла: example.env
+The project uses environment variables, and here is an example of the file: example.env
 
-## API эндпоинты
+## API Endpoints
 
-### Регистрация пользователя [/api/clients/create/]
+### User Registration [/api/clients/create/]
 
-- Метод: `POST`
-- Вид запроса: `form-data`
-- Тело запроса:
-    - `avatar` (image file): Фотография профиля пользователя.
-    - `gender` (string): Пол пользователя ('M' для мужского или 'F' для женского).
-    - `first_name` (string): Имя пользователя.
-    - `last_name` (string): Фамилия пользователя.
-    - `email` (string): Адрес электронной почты пользователя.
-    - `longitude` (FloatField): Долгота текущего местоположения пользователя (необязательное поле). 
-    - `latitude` (FloatField): Широта текущего местоположения пользователя (необязательное поле).
-- Ответ:
-    - Код состояния: 201 - Создано
+- Method: `POST`
+- Request Type: `form-data`
+- Request Body:
+    - `avatar` (image file): User profile photo.
+    - `gender` (string): User's gender ('M' for male or 'F' for female).
+    - `first_name` (string): User's first name.
+    - `last_name` (string): User's last name.
+    - `email` (string): User's email address.
+    - `longitude` (FloatField): User's current longitude (optional field).
+    - `latitude` (FloatField): User's current latitude (optional field).
+- Response:
+    - Status Code: 201 - Created
 
-Происходит обработка изображения, на него накладывается водяной знак (sample)
+The image is processed, and a watermark is applied to it (sample).
 
-### Добавление пользователя в список совпадений [/api/clients/{id}/match/]
+### Adding a User to the Match List [/api/clients/{id}/match/]
 
-- Метод: `POST`
-- Права доступа: Аутентифицированный пользователь
-- Параметры URL:
-    - `id` (integer): Идентификатор пользователя, который должен быть добавлен в список совпадений.
-- Тело запроса: Отсутствует
-- Ответ:
-    - Код состояния: 200 - OK
-    - Тело:
-        - `message` (string): Сообщение об успешном добавлении пользователя в список совпадений.
+- Method: `POST`
+- Permissions: Authenticated User
+- URL Parameters:
+    - `id` (integer): The identifier of the user to be added to the match list.
+- Request Body: Not applicable
+- Response:
+    - Status Code: 200 - OK
+    - Body:
+        - `message` (string): A message indicating successful addition of the user to the match list.
   
-Если симпатия взаимна, происходит рассылка email обоим участникам.
+If the interest is mutual, an email is sent to both participants.
 
-### Получение списка участников [/api/list/]
+### Get List of Participants [/api/list/]
 
-- Метод: `GET`
-- Права доступа: Аутентифицированный пользователь
-- Параметры запроса:
-    - `gender` (string, опционально): Фильтрация участников по полу.
-    - `first_name` (string, опционально): Фильтрация участников по имени.
-    - `last_name` (string, опционально): Фильтрация участников по фамилии.
-    - `distance` (string, опционально): Отображение участников в определённом диаметре от пользователя в км.
-Пример запроса: /api/list/?gender=M&distance=200 - мужчины в радиусе 200 км.  
+- Method: `GET`
+- Permissions: Authenticated User
+- Request Parameters:
+    - `gender` (string, optional): Filter participants by gender.
+    - `first_name` (string, optional): Filter participants by first name.
+    - `last_name` (string, optional): Filter participants by last name.
+    - `distance` (string, optional): Display participants within a certain radius from the user in kilometers.
+Example Request: /api/list/?gender=M&distance=200 - display males within a 200 km radius.  
 
-- Ответ:
-    - Код состояния: 200 - OK
-    - Тело: Массив объектов участников, каждый из которых содержит следующие поля:
-        - `id` (integer): Идентификатор участника.
-        - `avatar` (string): URL аватара участника.
-        - `gender` (string): Пол участника.
-        - `first_name` (string): Имя участника.
-        - `last_name` (string): Фамилия участника.
-        - `email` (string): Адрес электронной почты участника.
-        - `longitude` (float): Долгота координат текущего местоположения участника.
-        - `latitude` (float): Широта координат текущего местоположения участника.
+- Response:
+    - Status Code: 200 - OK
+    - Body: An array of participant objects, each containing the following fields:
+        - `id` (integer): Participant's identifier.
+        - `avatar` (string): URL of the participant's avatar.
+        - `gender` (string): Participant's gender.
+        - `first_name` (string): Participant's first name.
+        - `last_name` (string): Participant's last name.
+        - `email` (string): Participant's email address.
+        - `longitude` (float): Longitude coordinates of the participant's current location.
+        - `latitude` (float): Latitude coordinates of the participant's current location.
 
-### Обновление данных пользователя [/api/clients/update/]
+### Update User Data [/api/clients/update/]
 
-- Метод: `PUT`
-- Права доступа: Аутентифицированный пользователь
-- Тело запроса может включать:
-    - `first_name` (image file): Новое имя.
-    - `last_name` (string): Новая фамилия.
-    - `avatar` (image file): Новый аватар.
-    - `password` (string): Новый пароль.
-    - `longitude` (float): Новая долгота координат местоположения пользователя.
-    - `latitude` (float): Новая широта координат местоположения пользователя.
-- Ответ:
-    - Код состояния: 200 - OK
-    - Тело: Отсутствует
+- Method: `PUT`
+- Permissions: Authenticated User
+- Request Body may include:
+    - `first_name` (image file): New first name.
+    - `last_name` (string): New last name.
+    - `avatar` (image file): New avatar.
+    - `password` (string): New password.
+    - `longitude` (float): New longitude coordinates of the user's location.
+    - `latitude` (float): New latitude coordinates of the user's location.
+- Response:
+    - Status Code: 200 - OK
+    - Body: Not applicable
 
-### Аутентификация пользователя
+### User Authentication
 
-Приложение использует аутентификацию на основе токенов.
+The application uses token-based authentication.
 
-#### Получение аутентификационного токена [/api/auth/login/]
+#### Get Authentication Token [/api/auth/login/]
 
-- Метод: `POST`
-- Права доступа: Любой пользователь (аутентификация не требуется)
-- Тело запроса:
-    - `username` (string): Имя пользователя.
-    - `password` (string): Пароль пользователя.
-- Ответ:
-    - Код состояния: 200 - OK
-    - Тело:
-        - `token` (string): Аутентификационный токен для пользователя.
+- Method: `POST`
+- Permissions: Any user (authentication not required)
+- Request Body:
+    - `username` (string): User's username.
+    - `password` (string): User's password.
+- Response:
+    - Status Code: 200 - OK
+    - Body:
+        - `token` (string): Authentication token for the user.
