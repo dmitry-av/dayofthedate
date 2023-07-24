@@ -4,9 +4,6 @@
 
 Проект использует environment variables, пример файла: example.env
 
-API запущено здесь https://doubledragon.pythonanywhere.com/.
-Уже создано несколько пользователей, два в Астрахани, три в Москве. Рассылка email идёт через gmail smtp
-
 ## API эндпоинты
 
 ### Регистрация пользователя [/api/clients/create/]
